@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1707323941 source:c:\users\diego\desktop\facultad\programacion\vivorita\vivoritav.0\main.cpp
+	<iostream>
+	<conio.h>
+	<windows.h>
+	<random>
+	<string.h>
+	<iomanip>
+
