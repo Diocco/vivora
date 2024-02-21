@@ -4,7 +4,7 @@
 #include <random>
 #include <string.h>
 #include <iomanip>
-
+//Ultima version 
 
 #define R 50 //Resolucion
 #define H 10 //Longitud del nombre de usuario
@@ -231,11 +231,11 @@ int dev_ubicacion(){
 
         // Abre el archivo de usuarios para guardar los datos en una memoria reservada
         pusuarios=fopen("base_usuarios.txt","r");
-        int n= sizeof(base_usuarios); //Tamaño de un elemento
+        int n= sizeof(base_usuarios); //TamaÃ±o de un elemento
         fseek(pusuarios,0,SEEK_END); //Coloca el cursor en el final del archivo
-        int m=ftell(pusuarios); //Tamaño total de archivo
+        int m=ftell(pusuarios); //TamaÃ±o total de archivo
         int p=m/n; //Cantidad de elementos en el archivo
-        base_usuarios *datos_usuario=(base_usuarios*)malloc(p*n); //Reserva la memoria del tamaño del archivo con la estructura "base_usuarios"
+        base_usuarios *datos_usuario=(base_usuarios*)malloc(p*n); //Reserva la memoria del tamaÃ±o del archivo con la estructura "base_usuarios"
         fseek(pusuarios,0,SEEK_SET); //Coloca el curso al inicio del archivo
         fread(datos_usuario,n,p,pusuarios); //Lee todo el archivo y lo guarda en la memoria reservada
         fclose(pusuarios); //Una vez leido el archivo se lo cierra
@@ -311,11 +311,11 @@ int buscar_usuario(char usuario[H]){
         // Abre el archivo de usuarios para guardar los datos en una memoria reservada
         pusuarios=fopen("base_usuarios.txt","r");
         if(pusuarios == NULL){recurrentes.error(50);return -1;} //Error si no se puede abrir el archivo
-        int n= sizeof(base_usuarios); //Tamaño de un elemento
+        int n= sizeof(base_usuarios); //TamaÃ±o de un elemento
         fseek(pusuarios,0,SEEK_END); //Coloca el cursor en el final del archivo
-        int m=ftell(pusuarios); //Tamaño total de archivo
+        int m=ftell(pusuarios); //TamaÃ±o total de archivo
         int p=m/n; //Cantidad de elementos en el archivo
-        base_usuarios *datos_usuario=(base_usuarios*)malloc(p*n); //Reserva la memoria del tamaño del archivo con la estructura "base_usuarios"
+        base_usuarios *datos_usuario=(base_usuarios*)malloc(p*n); //Reserva la memoria del tamaÃ±o del archivo con la estructura "base_usuarios"
         fseek(pusuarios,0,SEEK_SET); //Coloca el curso al inicio del archivo
         fread(datos_usuario,n,p,pusuarios); //Lee todo el archivo y lo guarda en la memoria reservada
         fclose(pusuarios); //Una vez leido el archivo se lo cierra
@@ -616,11 +616,11 @@ int tabla(){
         int imaximo;
 
         archtabla = fopen("tabla.txt","r");
-        int n= sizeof(estructabla); //Tamaño de un elemento
+        int n= sizeof(estructabla); //TamaÃ±o de un elemento
         fseek(archtabla,0,SEEK_END);
-        int m=ftell(archtabla); //Tamaño total de archivo
+        int m=ftell(archtabla); //TamaÃ±o total de archivo
         int p=m/n; //Cantidad de elementos en el archivo
-        estructabla *ptabla=(estructabla*)malloc((p+1)*n); //Reserva la memoria del tamaño del archivo mas un elemento mas
+        estructabla *ptabla=(estructabla*)malloc((p+1)*n); //Reserva la memoria del tamaÃ±o del archivo mas un elemento mas
         fseek(archtabla,0,SEEK_SET);
         fread(ptabla,n,p,archtabla); //Lee todo el archivo y lo guarda en la memoria reservada
 
