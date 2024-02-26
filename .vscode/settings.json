@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\gcc.exe",
+    "files.associations": {
+        "random": "cpp"
+    }
+    "editor.cursorBlinking": "expand",
+    "editor.linkedEditing": true
+}
