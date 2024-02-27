@@ -148,7 +148,7 @@ class recurrentes{
         }
         system("cls");
         buffer[(R)*(R/2-1)]=char(32); //El ultimo caracter se le da un valor nulo para que no tenga basura que pueda ser mostrada en pantalla
-        cout << buffer;
+        cout << buffer << endl;
     }
 
     void mod_cuadricula(int x,int y,char cont){
@@ -249,47 +249,30 @@ class config{
     recurrentes recurrentes;
 
     public:
-    int dev_ubicacion(){
-        int busqueda=1;
-        int i;
+    
+    void mod_ubicacion(int i){
+        ubicacion_usuario=i;
+    }
 
-        // Abre el archivo de usuarios para guardar los datos en una memoria reservada
-        pusuarios=fopen("base_usuarios.txt","r");
-        int n= sizeof(base_usuarios); //Tamaño de un elemento
-        fseek(pusuarios,0,SEEK_END); //Coloca el cursor en el final del archivo
-        int m=ftell(pusuarios); //Tamaño total de archivo
-        int p=m/n; //Cantidad de elementos en el archivo
-        base_usuarios *datos_usuario=(base_usuarios*)malloc(p*n); //Reserva la memoria del tamaño del archivo con la estructura "base_usuarios"
-        fseek(pusuarios,0,SEEK_SET); //Coloca el curso al inicio del archivo
-        fread(datos_usuario,n,p,pusuarios); //Lee todo el archivo y lo guarda en la memoria reservada
-        fclose(pusuarios); //Una vez leido el archivo se lo cierra
-        ///////////////////////////////////
-        i=0;
-        do{
-            busqueda=strcmp(datos_usuario[i].nombre,nombre); //Se busca el usuario ingresado dentro de la base de usuarios
-            if(busqueda==0){ //Si se encuentra el nombre se da aviso al usuario y se almacena la configuracion
-                return i;
-            }
-            i++;
-        }while(i<p); //Si se busco en todos los elementos y no coincide se rompe el bucle
-        return -1;
+    int dev_ubicacion(){
+        return ubicacion_usuario;
     }
 
     void actualizar_config(int npiedras,int nvelocidad, int nalimentos, int n_max_piedras, int n_max_velocidad, int n_max_alimento,int multiplicador_adiccinal,int vacio_1,int vacio_2,int vacio_3){
-        configuracion[0]=npiedras;
-        configuracion[1]=nvelocidad;
-        configuracion[2]=nalimentos;
-        configuracion[3]=n_max_piedras;
-        configuracion[4]=n_max_velocidad;
-        configuracion[5]=n_max_alimento;
-        configuracion[6]=multiplicador_adiccinal;
-        configuracion[7]=vacio_1;
-        configuracion[8]=vacio_2;
-        configuracion[8]=vacio_3;
+        configuracion[0]=npiedras+48;
+        configuracion[1]=nvelocidad+48;
+        configuracion[2]=nalimentos+48;
+        configuracion[3]=n_max_piedras+48;
+        configuracion[4]=n_max_velocidad+48;
+        configuracion[5]=n_max_alimento+48;
+        configuracion[6]=multiplicador_adiccinal+48;
+        configuracion[7]=vacio_1+48;
+        configuracion[8]=vacio_2+48;
+        configuracion[9]=vacio_3+48;
     }
 
     int dev_config(int valor){
-        return configuracion[valor];
+        return configuracion[valor]-48;
     }
 
     void guardar_config(){
@@ -351,15 +334,25 @@ class config{
         fclose(pusuarios); //Una vez leido el archivo se lo cierra
         ///////////////////////////////////
         i=0;
+        cout << "Usuario ingresado: " << nombre << endl; Sleep(500);
         do{
+            cout << "Usuario en la posicion " << i << " es " << datos_usuario[i].nombre << endl; Sleep(1000);
             busqueda=strcmp(datos_usuario[i].nombre,nombre); //Se busca el usuario ingresado dentro de la base de usuarios
             if(busqueda==0){//Si se encuentra el nombre se da aviso al usuario y se almacena la configuracion
                 strcpy(configuracion,datos_usuario[i].configuracion);
                 banco=datos_usuario[i].banco;
+                cout << "Nombre: "<< datos_usuario[i].nombre << endl;
+                cout << "Banco: "<< datos_usuario[i].banco << endl;
+                cout << "Configuracion "<< datos_usuario[i].configuracion << endl; Sleep (2000);
+                cout << "Nombre: "<< nombre << endl;
+                cout << "Banco: "<< banco << endl;
+                cout << "Configuracion "<< configuracion << endl; Sleep (2000);
+                mod_ubicacion(i);
                 return i;
             }
             i++;
         }while(i<p); //Si se busco en todos los elementos y no coincide se rompe el bucle
+        mod_ubicacion(p); //La ubicacion del nuevo usuario esta en el final del archivo
         return -1;
     }
 
@@ -384,18 +377,28 @@ class IU{
 
     private:
     //Recuperar configuracion
-    int npiedras=config.dev_config(0)-16-48;
-    int nvelocidad=config.dev_config(1);
-    int nalimento=config.dev_config(2);
-    int n_max_piedras=config.dev_config(3);
-    int n_max_velocidad=config.dev_config(4);
-    int n_max_alimento=config.dev_config(5);
-    int multiplicador_adiccinal=config.dev_config(6);
+    int npiedras;
+    int nvelocidad;
+    int nalimento;
+    int n_max_piedras;
+    int n_max_velocidad;
+    int n_max_alimento;
+    int multiplicador_adiccinal;
+
     ///////////////////////////
 
     public:
 
+    
+
     int tienda(){
+        npiedras=config.dev_config(0);
+        nvelocidad=config.dev_config(1);
+        nalimento=config.dev_config(2);
+        n_max_piedras=config.dev_config(3);
+        n_max_velocidad=config.dev_config(4);
+        n_max_alimento=config.dev_config(5);
+        multiplicador_adiccinal=config.dev_config(6);
         int i,temp_precio;
         int x=R/2,y=R/4; //Centro de la pantalla
         int derecha=0,abajo=0;
@@ -697,7 +700,15 @@ class IU{
             ////////////////////
 
             recurrentes.dibujar(); //Se dibuja todo lo definido anteriormente
-
+            cout << "piedras=" << npiedras << endl;
+            cout << "alimentos=" << nalimento << endl;
+            cout << "velocidad=" << nvelocidad << endl ;
+            cout << "piedras_max=" << n_max_piedras << endl;
+            cout << "alimentos_max=" << n_max_alimento << endl;
+            cout << "velocidad_max=" << n_max_velocidad << endl ;
+            cout << "multiplicador=" << multiplicador_adiccinal << endl ;
+            int ubicacion=config.dev_ubicacion();
+            cout << "ubicacion=" << ubicacion << endl;
             //Se evalua la entrada del usuario
             salir=getch();
             if(salir=='w'&&eleccion!=-6){
@@ -908,7 +919,7 @@ class IU{
     int bienvenido_V2(){
 
         int x=R/2,y=R/4;//Centro de la pantalla
-        int i,k,salida=0,e=0;
+        int i,k,salida=0,e=0,ubicacion;
         char nombre[H];
         char r;
         char text_bienvenido[]="Bienvenido";
@@ -978,15 +989,16 @@ class IU{
             ///////////////////////////////
 
             // Se busca el nombre ingresado en el archivo de usuarios existentes
-            if(config.buscar_usuario(nombre)!=-1){//Si se encuentra el nombre ingresado:
-
+            ubicacion=config.buscar_usuario(nombre); //Realiza la busqueda del usuario en la base de usuarios
+            cout << "La ubicacion es=" << config.dev_ubicacion(); Sleep(500);
+            if(ubicacion!=-1){//Si se encuentra el nombre ingresado:
                 for(i=0;i<(int)strlen(text_encontrado);i++){
                     recurrentes.mod_cuadricula(x+i-9,y+2,text_encontrado[i]);
                 } //Se escribe el texto en pantalla que se encontro el usuario
                 e=2;
                 recurrentes.dibujar();
                 Sleep(2000);
-            } else {//Si no se encuetra el nombre ingresado:
+            } else {//Si no se encuentra el nombre ingresado:
                 for(i=0;i<(int)strlen(text_noencontrado);i++){
                     recurrentes.mod_cuadricula(x+i-10,y+2,text_noencontrado[i]);
                 } //Se escribe el texto en pantalla que no se encontro el usuario
