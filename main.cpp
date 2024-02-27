@@ -4,7 +4,6 @@
 #include <random>
 #include <string.h>
 #include <iomanip>
-//Ultima version 
 
 #define R 50 //Resolucion
 #define H 10 //Longitud del nombre de usuario
@@ -26,7 +25,7 @@ class recurrentes{
 
     private:
     char cuadricula[R][R/2]; //Se declara el arreglo donde se guardaran todos los elementos en pantalla del juego
-    char buffer[R*R/2];
+    char buffer[R*R/2-15];
     char entrada;
 
     public:
@@ -38,6 +37,8 @@ class recurrentes{
         char text_definir_error_0[]="Error desconocido";
         char text_definir_error_1[]="No tiene suficientes fondos";
         char text_definir_error_2[]="Ya se alcanzo el nivel maximo";
+        char text_definir_error_3[]="Largo maximo alcanzado";
+        
 
         switch(error){
             case 1:
@@ -52,9 +53,6 @@ class recurrentes{
                     cuadricula[R/2-longitud/2+i][R/4+1]=text_definir_error_1[i];
                 }
                 dibujar();
-                do{
-                    entrada=getch();
-                }while(entrada!='\r');
                 break;
 
             case 2:
@@ -70,9 +68,21 @@ class recurrentes{
                     cuadricula[R/2-longitud/2+i][R/4+1]=text_definir_error_2[i];
                 }
                 dibujar();
-                do{
-                    entrada=getch();
-                }while(entrada!='\r');
+                break;
+
+            case 3:
+
+            longitud=strlen(text_definir_error_3);
+                definircuadro2(longitud/2+3,2,0,0);
+                longitud=strlen(text_error);
+                for(i=0;i<longitud;i++){
+                    cuadricula[R/2-longitud/2+i][R/4-1]=text_error[i];
+                }
+                longitud=strlen(text_definir_error_3);
+                for(i=0;i<longitud;i++){
+                    cuadricula[R/2-longitud/2+i][R/4+1]=text_definir_error_3[i];
+                }
+                dibujar();
                 break;
 
             default:
@@ -85,6 +95,11 @@ class recurrentes{
                 dibujar();
                 break;
         }
+
+    do{ // Se espera que el usuario aprete el enter antes de continuar
+        entrada=getch();
+    }while(entrada!='\r');
+
     }
 
     void definircuadro2(int D, int A,int P,int K){
@@ -108,7 +123,6 @@ class recurrentes{
             cuadricula[i][y+2*A]=char(196);
         }
         cuadricula[x+2*D][y+2*A]=char(217);
-
         ////////////////////////////
 
         // Definir barras laterales
@@ -125,6 +139,7 @@ class recurrentes{
     void dibujar(){
 
         int i,j,k=0;
+ 
         for(j=0;j<(R/2)-1;j++){
             for(i=0;i<R;i++){
                 buffer[k]=cuadricula[i][j];
@@ -132,6 +147,7 @@ class recurrentes{
             }
         }
         system("cls");
+        buffer[(R)*(R/2-1)]=char(32); //El ultimo caracter se le da un valor nulo para que no tenga basura que pueda ser mostrada en pantalla
         cout << buffer;
     }
 
@@ -173,7 +189,6 @@ class recurrentes{
             }
             cuadricula[R-2][R/2-2]=char(188);
             cuadricula[R-1][R/2-2]=char(10);
-
             ////////////////////////////
         }
 
@@ -252,7 +267,6 @@ class config{
         i=0;
         do{
             busqueda=strcmp(datos_usuario[i].nombre,nombre); //Se busca el usuario ingresado dentro de la base de usuarios
-            cout << ">" << datos_usuario[i].nombre << "<->" << nombre << "<" << endl; Sleep(2000);
             if(busqueda==0){ //Si se encuentra el nombre se da aviso al usuario y se almacena la configuracion
                 return i;
             }
@@ -280,7 +294,6 @@ class config{
 
     void guardar_config(){
         ubicacion_usuario=dev_ubicacion();
-        cout << ubicacion_usuario << endl; Sleep(1000);
         FILE *manejador;
 
         manejador=fopen("base_usuarios.txt","r+"); //Se abre el archivo donde se encuentran todos los datos en usuario en modo escritura
@@ -320,7 +333,6 @@ class config{
 
     int buscar_usuario(char usuario[H]){
         strcpy(nombre,usuario);
-        cout << "Se almacena" << nombre << endl; Sleep(1000);
         int busqueda=1;
         int i;
 
@@ -524,10 +536,6 @@ class IU{
                 /////////////////////
 
                 recurrentes.dibujar();
-                cout << npiedras << endl;
-                cout << nvelocidad << endl;
-                cout <<config.dev_config(0)<< endl;
-                cout <<config.dev_config(1)<< endl;
                 entrada=getch();
 
                 if(entrada=='a'&&derecha>0){
@@ -939,33 +947,37 @@ class IU{
                 if(nombre[k]=='\r'){
                     nombre[k]='\0'; //Si la entrada es un "enter" se termina el bucle
                     salida=1;
-                } else if ((int)nombre[k]==8&&k!=0) {
-                    nombre[k]='\0'; //Si la entrada es un "retroceso" se define la entrada actual y la anterior como caracteres nulos, a menos que no haya nada escrito
-                    k--;
-                    nombre[k]='\0';
-                    k--;
-                    recurrentes.definircuadro(19,6);
-                    for(i=0;i<(int)strlen(text_bienvenido);i++){
-                        recurrentes.mod_cuadricula(x+i-5,y-4,text_bienvenido[i]);
+                } else if ((int)nombre[k]==8) { //Si la entrada es un "retroceso" se define la entrada actual y la anterior como caracteres nulos, a menos que no haya nada escrito
+                    if (k==0){ //Si no hay nada para borrar se reinicia la entrada
+                        nombre[k]='\0'; 
+                    } else { // Sino se borra lo escrito
+                        nombre[k]='\0'; 
+                        k--;
+                        nombre[k]='\0';
                     }
-                    for(i=0;i<(int)strlen(text_ingrese);i++){
-                        recurrentes.mod_cuadricula(x+i-14,y-2,text_ingrese[i]);
-                    }
+                } else if (k>H-2) { //Si ya se excedio el limite de caracteres y la entrada no es un retroceso se da un mensaje de error y no se sigue escribiendo
+                    recurrentes.error(3);
+                    nombre[k]='\0'; 
+                } else { //Se escribe la tecla ingresada a menos que se haya apretado el retroceso y no habia nada escrito.
+                    k++; 
                 }
-
-                if (!((int)nombre[k]==8&&k==0)){
-                    for(i=0;i<(int)strlen(nombre);i++){
-                        recurrentes.mod_cuadricula(x+i-1-int(k/2),y,nombre[i]);
-                    } //Se escribe la tecla ingresada a menos que se haya apretado el retroceso y no habia nada escrito.
-                    k++;
+                recurrentes.definirmatriz();
+                recurrentes.definircuadro(19,6);
+                for(i=0;i<(int)strlen(text_bienvenido);i++){
+                    recurrentes.mod_cuadricula(x+i-5,y-4,text_bienvenido[i]);
+                }
+                for(i=0;i<(int)strlen(text_ingrese);i++){
+                    recurrentes.mod_cuadricula(x+i-14,y-2,text_ingrese[i]);
+                }
+                for(i=0;i<(int)strlen(nombre);i++){
+                    recurrentes.mod_cuadricula(x+i-1-int(k/2),y,nombre[i]); 
                 }
 
                 recurrentes.dibujar();
-            }while(salida==0&&k<H-1);
+            }while(salida==0);
             ///////////////////////////////
 
             // Se busca el nombre ingresado en el archivo de usuarios existentes
-            cout << "Se busca" <<nombre << endl ; Sleep(1500);
             if(config.buscar_usuario(nombre)!=-1){//Si se encuentra el nombre ingresado:
 
                 for(i=0;i<(int)strlen(text_encontrado);i++){
@@ -1027,9 +1039,9 @@ class IU{
 
         if(e==0){ //Si se elige "Agregar usuario" se va agregar el usuario en el archivo de usuarios existentes
             config.agregar_usuario(nombre); //Se agrega el usuario
-
             //Se confirma en la pantalla la opcion ingresada
             recurrentes.definirmatriz();
+            recurrentes.definircuadro(19,6);
             for(i=0;i<(int)strlen(text_agregado);i++){
                 recurrentes.mod_cuadricula(x+i-8,y+3,text_agregado[i]);
             }
