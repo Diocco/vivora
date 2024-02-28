@@ -139,7 +139,7 @@ class recurrentes{
     void dibujar(){
 
         int i,j,k=0;
- 
+
         for(j=0;j<(R/2)-1;j++){
             for(i=0;i<R;i++){
                 buffer[k]=cuadricula[i][j];
@@ -334,19 +334,11 @@ class config{
         fclose(pusuarios); //Una vez leido el archivo se lo cierra
         ///////////////////////////////////
         i=0;
-        cout << "Usuario ingresado: " << nombre << endl; Sleep(500);
         do{
-            cout << "Usuario en la posicion " << i << " es " << datos_usuario[i].nombre << endl; Sleep(1000);
             busqueda=strcmp(datos_usuario[i].nombre,nombre); //Se busca el usuario ingresado dentro de la base de usuarios
             if(busqueda==0){//Si se encuentra el nombre se da aviso al usuario y se almacena la configuracion
                 strcpy(configuracion,datos_usuario[i].configuracion);
                 banco=datos_usuario[i].banco;
-                cout << "Nombre: "<< datos_usuario[i].nombre << endl;
-                cout << "Banco: "<< datos_usuario[i].banco << endl;
-                cout << "Configuracion "<< datos_usuario[i].configuracion << endl; Sleep (2000);
-                cout << "Nombre: "<< nombre << endl;
-                cout << "Banco: "<< banco << endl;
-                cout << "Configuracion "<< configuracion << endl; Sleep (2000);
                 mod_ubicacion(i);
                 return i;
             }
@@ -700,15 +692,7 @@ class IU{
             ////////////////////
 
             recurrentes.dibujar(); //Se dibuja todo lo definido anteriormente
-            cout << "piedras=" << npiedras << endl;
-            cout << "alimentos=" << nalimento << endl;
-            cout << "velocidad=" << nvelocidad << endl ;
-            cout << "piedras_max=" << n_max_piedras << endl;
-            cout << "alimentos_max=" << n_max_alimento << endl;
-            cout << "velocidad_max=" << n_max_velocidad << endl ;
-            cout << "multiplicador=" << multiplicador_adiccinal << endl ;
             int ubicacion=config.dev_ubicacion();
-            cout << "ubicacion=" << ubicacion << endl;
             //Se evalua la entrada del usuario
             salir=getch();
             if(salir=='w'&&eleccion!=-6){
@@ -990,7 +974,6 @@ class IU{
 
             // Se busca el nombre ingresado en el archivo de usuarios existentes
             ubicacion=config.buscar_usuario(nombre); //Realiza la busqueda del usuario en la base de usuarios
-            cout << "La ubicacion es=" << config.dev_ubicacion(); Sleep(500);
             if(ubicacion!=-1){//Si se encuentra el nombre ingresado:
                 for(i=0;i<(int)strlen(text_encontrado);i++){
                     recurrentes.mod_cuadricula(x+i-9,y+2,text_encontrado[i]);
@@ -1051,6 +1034,7 @@ class IU{
 
         if(e==0){ //Si se elige "Agregar usuario" se va agregar el usuario en el archivo de usuarios existentes
             config.agregar_usuario(nombre); //Se agrega el usuario
+            config.buscar_usuario(nombre); //Se guarda la configuracion default de un nuevo usuario
             //Se confirma en la pantalla la opcion ingresada
             recurrentes.definirmatriz();
             recurrentes.definircuadro(19,6);
