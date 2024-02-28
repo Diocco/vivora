@@ -30,6 +30,10 @@ class recurrentes{
 
     public:
 
+    char dev_cuadricula(int x,int y){
+        return cuadricula[x][y];
+    }
+
     void error(int error){
         int i;
         int longitud;
@@ -361,6 +365,129 @@ class config{
     void restar_banco(int valor){
         banco=banco-valor;
     }
+};
+
+class vivora{
+    
+    private:
+    int largo;
+    int centrox=(int)R/2;
+    int centroy=(int)R/4;
+    bool iniciado=false;
+    int posicion_x;
+    int posicion_y;
+    char estructura_1;
+    char estructura_2;
+    char user_entry;
+    char last_user_entry;
+
+    recurrentes recurrentes;
+    config config;
+
+    public:
+    int colision(){
+        estructura_1=recurrentes.dev_cuadricula(posicion_x,posicion_y);
+        estructura_2=recurrentes.dev_cuadricula(posicion_x+1,posicion_y);
+
+        //char(32) es espacio vacio
+        //char(254) es comida estatica
+        //char(220) es comida que se mueve
+
+        //Verifica con que colisiona la vivora
+        if(
+        ((estructura_1==char(32))||(estructura_1==char(254))||(estructura_1==char(220)))&&
+        ((estructura_2==char(32))||(estructura_2==char(254))||(estructura_2==char(220)))){
+            if ((estructura_1==char(254))||(estructura_2==char(254))){
+                return 2; // La vivora se come la comida estatica
+            } else if((estructura_1==char(220))||(estructura_2==char(220))) {
+                return 3; // La vivora se come la comida que se mueve
+            } else {
+                return 0; // La vivora esta en espacio vacio
+            }
+        } else { // Si la vivora no se encuentra con ninguno de los elementos anteriores 
+            return 1; // La vivora colisiono con algo contundente
+        }
+    }
+
+    void entrada(){
+        if (kbhit()!=0){  // Verifica si se ha presionado una tecla
+            user_entry=getch(); // Se guarda la entrada del usuario
+            if ((user_entry=='w'&&last_user_entry=='s')||
+            (user_entry=='W'&&last_user_entry=='s')||
+            (user_entry=='W'&&last_user_entry=='S')||
+            (user_entry=='w'&&last_user_entry=='S')||
+            (user_entry=='a'&&last_user_entry=='d')||
+            (user_entry=='a'&&last_user_entry=='D')||
+            (user_entry=='A'&&last_user_entry=='D')||
+            (user_entry=='A'&&last_user_entry=='d')||
+            (user_entry=='d'&&last_user_entry=='a')||
+            (user_entry=='d'&&last_user_entry=='A')||
+            (user_entry=='D'&&last_user_entry=='A')||
+            (user_entry=='D'&&last_user_entry=='a')||
+            (user_entry=='s'&&last_user_entry=='w')||
+            (user_entry=='s'&&last_user_entry=='W')||
+            (user_entry=='S'&&last_user_entry=='W')||
+            (user_entry=='S'&&last_user_entry=='w'))
+            {
+                user_entry=last_user_entry;//Si se quiere hacer un movimiento inverso al anterior se descarga la nueva entrada
+            } else {
+                last_user_entry=user_entry; // Obtiene la tecla presionada
+            }
+        } else {
+            // Si no se presiona ninguna tecla la ultima entrada no se modifica
+        }
+        // Una vez definida la entrada se procede a la realizacion del movimiento
+        if(user_entry=='w'||user_entry=='W'){
+            posicion_y--;
+        }else if (user_entry=='s'||user_entry=='S'){
+            posicion_y++;
+        }else if (user_entry=='a'||user_entry=='A'){
+            posicion_x=posicion_x-2;
+        }else if (user_entry=='d'||user_entry=='D'){
+            posicion_x=posicion_x+2;
+        }
+    }
+
+    void juego(){
+        do{
+            recurrentes.definirmatriz();
+            if (iniciado==false) //Si es el primer bucle de definen las variables iniciales
+            {
+                inicio();
+            }
+            recurrentes.mod_cuadricula(posicion_x,posicion_y,char(219));
+            recurrentes.mod_cuadricula(posicion_x+1,posicion_y,char(219));
+            recurrentes.dibujar();
+            Sleep(200-20*config.dev_config(1)); // Velocidad
+            entrada(); //Se evalua la entrada del usuario
+            switch (colision()){
+                case 0: //La vivora se encuentra en espacio vacio
+                    // No hace nada
+                    break;
+                case 1: //Gameover
+                    iniciado=false; //modificar
+                    break;
+                case 2: //Se come la comida estatica
+                    //modificar completar
+                    break;
+                case 3: //Se come la comida que se mueve
+                    //modificar completar
+                    break;
+                default:
+                    recurrentes.error(50);
+                    break;
+            }
+        }while(true);
+    }
+
+    void inicio(){
+        posicion_x=centrox;
+        posicion_y=centroy;
+        iniciado=true; //Se reinicia el valor para que en el proximo bucle no se reinicien las variables iniciales
+        user_entry='d'; //Al inicio la vivora se mueve hacia la derecha
+        last_user_entry='d';
+    }
+
 };
 
 class IU{
@@ -1070,6 +1197,7 @@ int main(){
     IU IU;
     recurrentes recurrentes;
     config config;
+    vivora vivora;
     ////////////////////
 
     recurrentes.definirmatriz();
@@ -1078,5 +1206,7 @@ int main(){
     if(IU.menu()==4){
         return 0;
     }
+    
+    vivora.juego();
     return 0;
 }
