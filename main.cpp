@@ -275,7 +275,8 @@ class config{
         return configuracion[valor]-48;
     }
 
-    void guardar_config(){
+    int guardar_config(){
+
         ubicacion_usuario=dev_ubicacion();
         FILE *manejador;
 
@@ -292,6 +293,7 @@ class config{
         ///////////
 
         fclose(manejador); //Se cierra el archivo
+        return 1;
     }
 
     int agregar_usuario(char usuario[H]){
@@ -381,9 +383,7 @@ class IU{
 
     public:
 
-    
-
-    int tienda(){
+    void config_inicial(){
         npiedras=config.dev_config(0);
         nvelocidad=config.dev_config(1);
         nalimento=config.dev_config(2);
@@ -391,6 +391,10 @@ class IU{
         n_max_velocidad=config.dev_config(4);
         n_max_alimento=config.dev_config(5);
         multiplicador_adiccinal=config.dev_config(6);
+        return;
+    }
+
+    int tienda(){
         int i,temp_precio;
         int x=R/2,y=R/4; //Centro de la pantalla
         int derecha=0,abajo=0;
@@ -533,16 +537,16 @@ class IU{
                 recurrentes.dibujar();
                 entrada=getch();
 
-                if(entrada=='a'&&derecha>0){
+                if((entrada=='a'||entrada=='A')&&derecha>0){
                     derecha--;
                 }
-                else if(entrada=='d'&&derecha<2){
+                else if((entrada=='d'||entrada=='D')&&derecha<2){
                     derecha++;
                 }
-                else if(entrada=='w'&&abajo>0){
+                else if((entrada=='w'||entrada=='W')&&abajo>0){
                     abajo--;
                 }
-                else if(entrada=='s'&&abajo<2){
+                else if((entrada=='s'||entrada=='S')&&abajo<2){
                     abajo++;
                 }
 
@@ -594,6 +598,7 @@ class IU{
 
     }while(!(derecha==1&&abajo==2));
     config.actualizar_config(npiedras,nvelocidad,nalimento,n_max_piedras,n_max_velocidad,n_max_alimento,multiplicador_adiccinal,0,0,0);
+    config.guardar_config();
     return menu();
 }
 
@@ -674,7 +679,7 @@ class IU{
             ////////////
 
             // Se define el multiplicador
-            multiplicador=(1+(float(npiedras+nvelocidad-nalimento*2)/10));
+            multiplicador=(1+(float(multiplicador_adiccinal+npiedras+nvelocidad-nalimento*2)/10));
             if(multiplicador>0){
             } else {
                 multiplicador=0;
@@ -695,13 +700,13 @@ class IU{
             int ubicacion=config.dev_ubicacion();
             //Se evalua la entrada del usuario
             salir=getch();
-            if(salir=='w'&&eleccion!=-6){
+            if((salir=='w'||salir=='W')&&eleccion!=-6){
                 eleccion=eleccion-6;
             }
-            if(salir=='s'&&eleccion!=6){
+            if((salir=='s'||salir=='S')&&eleccion!=6){
                 eleccion=eleccion+6;
             }
-            if(salir=='d'){
+            if((salir=='d'||salir=='D')){
                 if(eleccion==-6&&npiedras!=n_max_piedras){
                     npiedras++;
                 }
@@ -726,7 +731,8 @@ class IU{
             ///////////////////////
 
         }while(salir!='\r'); //Si el usuario presiona el enter se vuelve al menu principal
-
+        config.actualizar_config(npiedras,nvelocidad,nalimento,n_max_piedras,n_max_velocidad,n_max_alimento,multiplicador_adiccinal,0,0,0); //Guarda la configuracion
+        config.guardar_config();
         recurrentes.definirmatriz();
         return menu();
     }
@@ -846,8 +852,9 @@ class IU{
         int i,j;
         int e=0;
 
-        recurrentes.definirmatriz(); //Borra todo lo dibujado en la cuadricula
+        config_inicial();
 
+        recurrentes.definirmatriz(); //Borra todo lo dibujado en la cuadricula
         recurrentes.definircuadro(10,6); //Se define el recuadro contenedor
 
         //Se define el recuadro de seleccion
@@ -873,12 +880,11 @@ class IU{
             } 
 
             recurrentes.dibujar();
-
             m=getch();
 
-            if(m=='w'&&e!=0){
+            if((m=='w'||m=='W')&&e!=0){
                 e--;
-            } else if(m=='s'&&e!=4) {
+            } else if((m=='s'||m=='S')&&e!=4) {
                 e++;
             }
 
@@ -1070,7 +1076,6 @@ int main(){
     IU.bienvenido_V2();
 
     if(IU.menu()==4){
-        config.guardar_config();
         return 0;
     }
     return 0;
