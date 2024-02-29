@@ -240,6 +240,7 @@ class config{
     int ubicacion_usuario;
     int banco;
     char configuracion[H];
+    float multiplicador;
     // npiedras -> configuracion[0]
     // nvelocidad -> configuracion[1]
     // nalimento -> configuracion[2]
@@ -254,6 +255,11 @@ class config{
 
     public:
     
+    float dev_multiplicador(){
+        multiplicador=(1+(float(configuracion[6]+configuracion[0]+configuracion[1]-configuracion[2]*2)/10));
+        return multiplicador;
+    }
+
     void mod_ubicacion(int i){
         ubicacion_usuario=i;
     }
@@ -380,6 +386,9 @@ class vivora{
     char estructura_2;
     char user_entry;
     char last_user_entry;
+    int puntaje;
+    float multiplicador;
+    char text_puntaje_value[6];
 
     recurrentes recurrentes;
     config config;
@@ -406,6 +415,61 @@ class vivora{
             }
         } else { // Si la vivora no se encuentra con ninguno de los elementos anteriores 
             return 1; // La vivora colisiono con algo contundente
+        }
+    }
+
+    void gameover(){
+
+        // Definir cuadro de game over
+        int i,k;
+        char entrada;
+        string game_over="Game over";
+        string text_puntaje="Puntaje ";
+        multiplicador=config.dev_multiplicador();
+        puntaje=((largo-1)*multiplicador)*50;
+        config.restar_banco(-1*puntaje); //Se agrega los puntos obtenidos al banco
+        //Anota el puntaje obtenido en la tabla
+        FILE *ptabla;
+        ptabla=fopen("tabla.txt","a");
+        estructabla usuarioypuntaje;
+        strcpy(usuarioypuntaje.nombre,config.dev_nombre());
+        usuarioypuntaje.puntaje=puntaje;
+        fwrite(&usuarioypuntaje,sizeof (estructabla),1,ptabla);
+        fclose(ptabla);
+        //////////////////////////////
+
+        recurrentes.definircuadro(12,4); //Se define el cuadro de gameover
+
+        k=0;
+        for(i=centrox-4;i<centrox-4+9;i++){
+            recurrentes.mod_cuadricula(i,centroy-1,game_over[k]);
+            k++;
+        }
+
+        k=0;
+        calcularpuntaje();
+            for(i=centrox+1;i<centrox+1+7;i++){
+            recurrentes.mod_cuadricula(i,centroy+1,text_puntaje_value[k]);
+        k++;
+        }
+        k=0;
+            for(i=centrox-6;i<centrox-6+8;i++){
+            recurrentes.mod_cuadricula(i,centroy+1,text_puntaje[k]);
+        k++;
+        }
+        //////////////////
+        recurrentes.dibujar();
+        do{
+            entrada=getch();
+        }while(entrada!='\r');
+    }
+
+    void calcularpuntaje(){
+        int temp;
+        temp=((largo-1)*multiplicador)*50;
+        for(int i=6;i>-1;i--){
+            text_puntaje_value[i]=temp%10+48;
+            temp=temp/10;
         }
     }
 
@@ -458,14 +522,15 @@ class vivora{
             recurrentes.mod_cuadricula(posicion_x,posicion_y,char(219));
             recurrentes.mod_cuadricula(posicion_x+1,posicion_y,char(219));
             recurrentes.dibujar();
-            Sleep(200-20*config.dev_config(1)); // Velocidad
+            Sleep(200-20*(config.dev_config(1)+48)); // Velocidad
             entrada(); //Se evalua la entrada del usuario
             switch (colision()){
                 case 0: //La vivora se encuentra en espacio vacio
                     // No hace nada
                     break;
                 case 1: //Gameover
-                    iniciado=false; //modificar
+                    gameover();
+                    iniciado=false;
                     break;
                 case 2: //Se come la comida estatica
                     //modificar completar
@@ -481,6 +546,7 @@ class vivora{
     }
 
     void inicio(){
+        largo=1;
         posicion_x=centrox;
         posicion_y=centroy;
         iniciado=true; //Se reinicia el valor para que en el proximo bucle no se reinicien las variables iniciales
@@ -1154,10 +1220,10 @@ class IU{
 
                     recurrentes.dibujar();
                     r=getch(); //Espera la entrada del usuario
-                    if(r=='d'&&e==0){
+                    if((r=='d'||r=='D')&&e==0){
                         e++;
                     }
-                    else if (r=='a'&&e==1){
+                    else if ((r=='a'||r=='A')&&e==1){
                         e--;
                     }
                 }while(r!='\r'); //Se rompe el bucle cuando el usuario apreta el enter
