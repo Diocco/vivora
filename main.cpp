@@ -25,14 +25,10 @@ class recurrentes{
 
     private:
     char cuadricula[R][R/2]; //Se declara el arreglo donde se guardaran todos los elementos en pantalla del juego
-    char buffer[R*R/2-15];
+    char buffer[R*R/2];
     char entrada;
 
     public:
-
-    char dev_cuadricula(int x,int y){
-        return cuadricula[x][y];
-    }
 
     void error(int error){
         int i;
@@ -157,6 +153,10 @@ class recurrentes{
 
     void mod_cuadricula(int x,int y,char cont){
         cuadricula[x][y]=cont;
+    }
+    
+    char dev_cuadricula(int x,int y){
+        return cuadricula[x][y];
     }
 
     void definirmatriz(){
@@ -373,6 +373,24 @@ class config{
     }
 };
 
+class alimento{
+
+    recurrentes recurrentes;
+
+    private:
+    int food_pos_x;
+    int food_pos_y;
+    int min=2,max=R-3; //Rango en donde se generara la comida
+    public:
+
+    int generar(){
+        //Generador de numeros aleatorios
+        srand(time(NULL)); // Cambia la semilla de generacion segun la hora actual
+        int num_al=(rand() % (max - min + 1) + min);
+        return num_al;
+    }
+};
+
 class vivora{
     
     private:
@@ -389,11 +407,20 @@ class vivora{
     int puntaje;
     float multiplicador;
     char text_puntaje_value[6];
+    int food_pos_x;
+    int food_pos_y;
+    int hold_old_pos_x[R*R/2];
+    int hold_old_pos_y[R*R/2];
+    int num_bucle;
+    int old_largo;
+    int erase;
 
     recurrentes recurrentes;
     config config;
+    alimento alimento1;
 
     public:
+
     int colision(){
         estructura_1=recurrentes.dev_cuadricula(posicion_x,posicion_y);
         estructura_2=recurrentes.dev_cuadricula(posicion_x+1,posicion_y);
@@ -514,26 +541,28 @@ class vivora{
 
     void juego(){
         do{
-            recurrentes.definirmatriz();
-            if (iniciado==false) //Si es el primer bucle de definen las variables iniciales
-            {
+            entrada(); //Se evalua la entrada del usuario
+            if (iniciado==false){ //Si es el primer bucle de definen las variables iniciales
                 inicio();
             }
-            recurrentes.mod_cuadricula(posicion_x,posicion_y,char(219));
-            recurrentes.mod_cuadricula(posicion_x+1,posicion_y,char(219));
-            recurrentes.dibujar();
-            Sleep(200-20*(config.dev_config(1)+48)); // Velocidad
-            entrada(); //Se evalua la entrada del usuario
             switch (colision()){
                 case 0: //La vivora se encuentra en espacio vacio
-                    // No hace nada
                     break;
                 case 1: //Gameover
                     gameover();
                     iniciado=false;
+                    return;
                     break;
                 case 2: //Se come la comida estatica
-                    //modificar completar
+                    largo++;
+                    do{
+                        food_pos_x=alimento1.generar();
+                        if(food_pos_x%2==0){
+                            food_pos_x++;
+                        }
+                        food_pos_y=alimento1.generar()/2;
+                    }while(((recurrentes.dev_cuadricula(food_pos_x,food_pos_y))!=char(32))||(recurrentes.dev_cuadricula(food_pos_x-1,food_pos_y)!=char(32))); //Verifica que la nueva comida se encuentre en un espacio vacio, si no es asi se crea otra
+                        recurrentes.mod_cuadricula(food_pos_x,food_pos_y,char(254));
                     break;
                 case 3: //Se come la comida que se mueve
                     //modificar completar
@@ -542,18 +571,53 @@ class vivora{
                     recurrentes.error(50);
                     break;
             }
+            recurrentes.mod_cuadricula(posicion_x,posicion_y,char(219));
+            recurrentes.mod_cuadricula(posicion_x+1,posicion_y,char(219));
+            old_pos();
+            recurrentes.dibujar();
+            cout << "Bucle" << num_bucle << endl;
+            Sleep(200-20*(config.dev_config(1)+48)); // Velocidad
         }while(true);
     }
 
     void inicio(){
+        iniciado=true;
         largo=1;
         posicion_x=centrox;
         posicion_y=centroy;
         iniciado=true; //Se reinicia el valor para que en el proximo bucle no se reinicien las variables iniciales
         user_entry='d'; //Al inicio la vivora se mueve hacia la derecha
         last_user_entry='d';
+        recurrentes.definirmatriz();
+        recurrentes.mod_cuadricula(centrox-5,centroy,char(254));
+        num_bucle=0;
+        erase=0;
+        old_largo=largo;
+        hold_old_pos_x[num_bucle]=posicion_x;
+        hold_old_pos_y[num_bucle]=posicion_y;
     }
 
+    void old_pos(){
+        if(num_bucle==R*R/2-1){ //Verifica que no se sobrepase el tamaño de la matriz
+            num_bucle=0;
+        }
+        num_bucle++; //Cuenta las iteraciones
+        hold_old_pos_x[num_bucle]=posicion_x; // Guarda la posicion actual de la cabeza de la vivora 
+        hold_old_pos_y[num_bucle]=posicion_y; 
+        if(largo==old_largo){ // Verfica si la vivora aumento su largo
+            //Si la vivora no aumento su largo entonces borra la cola de la vivora
+            recurrentes.mod_cuadricula(hold_old_pos_x[erase],hold_old_pos_y[erase],char(32)); 
+            recurrentes.mod_cuadricula(hold_old_pos_x[erase]+1,hold_old_pos_y[erase],char(32)); 
+            if(erase==R*R/2-1){ //Verifica que no se sobrepase el tamaño de la matriz
+            erase=0;
+        }
+            erase++; //Al borrar la cola de la vivora se aumenta la posicion para el proximo borrado
+        } else {
+            // Si el largo de la vivora aumento en este bloque se guarda el nuevo largo de la vivora y no se borra nada
+            old_largo=largo;
+        }
+        // Reinicia los tamaños para no tener que guardar muchas posiciones y desperdiciar memoria
+    }
 };
 
 class IU{
@@ -561,6 +625,7 @@ class IU{
     //Se inician los objetos
     recurrentes recurrentes;
     config config;
+    vivora vivora;
 
     private:
     //Recuperar configuracion
@@ -792,7 +857,7 @@ class IU{
     }while(!(derecha==1&&abajo==2));
     config.actualizar_config(npiedras,nvelocidad,nalimento,n_max_piedras,n_max_velocidad,n_max_alimento,multiplicador_adiccinal,0,0,0);
     config.guardar_config();
-    return menu();
+    return 0;
 }
 
     int opciones(){
@@ -927,7 +992,7 @@ class IU{
         config.actualizar_config(npiedras,nvelocidad,nalimento,n_max_piedras,n_max_velocidad,n_max_alimento,multiplicador_adiccinal,0,0,0); //Guarda la configuracion
         config.guardar_config();
         recurrentes.definirmatriz();
-        return menu();
+        return 0;
     }
 
     int tabla(){
@@ -1019,7 +1084,7 @@ class IU{
         fclose(archtabla);
 
         recurrentes.definirmatriz();
-        return menu();
+        return 0;
 
     }
 
@@ -1084,17 +1149,16 @@ class IU{
         }while(m!='\r');
         //////////////////////
 
-        if(e==1){
-            e=tabla();
-            return e;
-        }
-        if(e==2){
-            e=tienda();
-            return e;
-        }
-        if(e==3){
-            e=opciones();
-            return e;
+        if(e==0){
+            vivora.juego();
+        } else if(e==1){
+            tabla();
+        } else if(e==2){
+            tienda();
+        } else if(e==3){
+            opciones();
+        } else if(e==4){
+            config.guardar_config();
         }
         return e;
     }
@@ -1269,10 +1333,9 @@ int main(){
     recurrentes.definirmatriz();
     IU.bienvenido_V2();
 
-    if(IU.menu()==4){
-        return 0;
-    }
-    
-    vivora.juego();
-    return 0;
+    do{  //Inicia el menu
+        if(IU.menu()==4){
+            return 4;
+        }
+    }while(true);
 }
