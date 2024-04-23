@@ -18,8 +18,6 @@ El juego contiene un menú, allí se encuentran ubicados los aspectos mas import
 
 - Tienda: Se compran nuevos niveles (con los puntos obtenidos al jugar) para aumentar la cantidad de piedras, velocidad, o alimentos, ademas de aumentar el multiplicador adicional.
 
-Si enfrentaste desafíos durante el desarrollo del proyecto, menciona cómo los superaste. Esto muestra tu capacidad para resolver problemas y tu perseverancia.
-
 - Salir: Se cierra el juego
 
 Logros Destacados:
